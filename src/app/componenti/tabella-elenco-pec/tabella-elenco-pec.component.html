@@ -1,0 +1,218 @@
+
+   
+
+    <div *ngIf="_hoPermessiPerQuestoComponenente" class="p-grid">
+    <p-toast [key]="'toast_tab_elenco_pec'"></p-toast>
+
+    <h3 class="p-col-12 title">Anagrafe delle Pec aziendali</h3>
+
+    <div class="p-col-12 up-buttons">
+        <button pButton icon="pi pi-plus"
+            (click)="startEditRow(null, 'INSERT')"
+            label="Aggiungi"
+            pTooltip="Aggiungi una nuova Pec"
+            class="bds-button">
+        </button>
+    </div>
+
+
+    <p-table class="p-col-12"
+        #dtElencoPec
+        [columns]="_cols" 
+        [value]="_value"
+        [lazy]="true"
+        [lazyLoadOnInit]="false"
+        [paginator]="true" 
+        [autoLayout]="true"
+        [rows]="_rows"  
+        [totalRecords]="_totalRecords"
+        [rowsPerPageOptions]="[5,10,15,20]"
+        [loading]="_loading"
+        (onLazyLoad)="handleEvent('onLazyLoad', $event)"
+        >
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <ng-template ngFor let-col [ngForOf]="columns">
+                    <th *ngIf="col.fieldType !== 'object'" [pSortableColumn]="col.field"  [style.width]="col.style?.width">                
+                        {{col.header}}
+                        <p-sortIcon  [field]="col.field">
+                        </p-sortIcon>
+                        <!--                         ariaLabel="Activate to sort" 
+                            ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order" -->
+                    </th>
+                    <th *ngIf="col.fieldType == 'object'" [style.width]="col.style?.width">                
+                        {{col.header}}
+                    </th>
+                </ng-template>
+                <th [style.width]="'50px'"></th>
+            </tr>
+            <tr>
+                <td *ngFor="let col of columns" [ngSwitch]="col.field" [ngSwitch]="col.field" [style.width]="col.style?.width" [style.text-align]="'center'">
+                    <div *ngSwitchCase="'aziende'">
+                        <app-combo-aziende [azienda]="_aziendaIniziale" [filterByRole]="true" [readonly]="_comboAziendeReadOnly" (aziendaChange)="filterComboChange('aziende', $event)"></app-combo-aziende>
+                    </div>
+                    <div *ngSwitchCase="'strutture'">
+                        <app-combo-strutture-new [enabled]="_aziendaFilter" [strutturaIniziale]="_strutturaFilter" [azienda]="_aziendaFilter" (strutturaSelezionataEmit)="filterComboChange('strutture', $event)"></app-combo-strutture-new>
+                    </div>
+                    <div *ngSwitchCase="'gestori'">
+                        <app-combo-utenti [enabled]="_aziendaFilter" [utenteIniziale]="_utenteFilter" [azienda]="_aziendaFilter" (utenteStrutturaSelezionatoEmit)="filterComboChange('gestori', $event)"></app-combo-utenti>
+                    </div>
+                    <div *ngSwitchDefault  [ngSwitch]="col.fieldType">
+                        <p-triStateCheckbox #check *ngSwitchCase="'boolean'" class="table-search-triStateCheckbox"
+                            (onChange)="dtElencoPec.filter($event.value, col.field, col.filterMatchMode)">
+                        </p-triStateCheckbox>
+                        <input *ngSwitchDefault pInputText attr.aria-label="Colonnna {{col.header}}, Cella filtro" type="text" (input)="dtElencoPec.filter($event.target.value, col.field, col.filterMatchMode)"
+                            style="width:100%" #filterInputText>                
+                    </div>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+                <td *ngFor="let col of columns" [ngSwitch]="col.field" [style.width]="col.style?.width">
+                    <div *ngSwitchCase="'aziende'">
+                        {{buildAziende(rowData)}}
+                    </div>
+                    <div *ngSwitchCase="'strutture'">
+                        {{buildStrutture(rowData)}}
+                    </div>
+                    <div *ngSwitchCase="'gestori'">
+                        {{buildGestori(rowData)}}
+                    </div>
+                    <div *ngSwitchDefault>                    
+                        {{rowData[col.field]}}
+                    </div>
+                </td>
+                <td [style.width]="'50px'">
+                    <button pButton type="button" icon="pi pi-pencil" (click)="startEditRow(rowData, 'UPDATE')"
+                        pTooltip="Modifica" class="bds-button" [disabled]="!possoModificareRow(rowData)">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+
+    <p-dialog appendTo="body" [responsive]="true" showEffect="fade" 
+        [modal]="true" [width]="800" [(visible)]="_displayDetailDialog"
+        (onHide)="hideDetailDialog()"
+        >
+        
+        <p-messages #messageez [key]="'msg_dialog_tab_elenco_pec'"></p-messages>
+
+
+        <!--DIALOG DI MODIFICA/INSERIMENTO-->
+        <div *ngIf="_detailDialogEntity" class="ui-g ui-fluid">
+            <!-- RIGA UNO -->
+            <div class="ui-g-2"></div>
+            <div class="ui-g-2">
+                <p-checkbox 
+                    [(ngModel)]="_detailDialogEntity.attiva" 
+                    id="attiva" 
+                    binary="true">
+                </p-checkbox>
+                <label for="attiva" style="margin-left: 20px">Attiva</label>
+            </div>
+            <div class="ui-g-2"></div>
+            <div class="ui-g-2"></div>
+            <div class="ui-g-3">
+                <p-checkbox 
+                    [(ngModel)]="_detailDialogEntity.perRiservato" 
+                    id="perRiservato" 
+                    binary="true">
+                </p-checkbox>
+                <label for="perRiservato" style="margin-left: 20px">Per riservato</label>
+            </div>
+            <div class="ui-g-1"></div>
+
+            <!-- RIGA 2 -->
+            <div class="ui-g-2"></div>
+            <div class="ui-g-2">
+                <p-checkbox 
+                    [(ngModel)]="_detailDialogEntity.massiva" 
+                    id="attiva" 
+                    binary="true" 
+                    pTooltip="">
+                </p-checkbox>
+                <label for="massiva" style="margin-left: 20px">Massiva</label>
+            </div>
+            <div class="ui-g-2"></div>
+            <div class="ui-g-2"></div>
+            <div class="ui-g-3">
+                <p-checkbox 
+                    [(ngModel)]="_detailDialogEntity.chiusa" 
+                    id="chiusa" 
+                    binary="true">
+                </p-checkbox>
+                <label for="chiusa" style="margin-left: 20px">Chiusa</label>
+            </div>
+            <div class="ui-g-1"></div>
+
+            <!-- ALTRE RIGHE -->
+            <div class="ui-g-6">
+                <label for="indirizzo">Indirizzo</label>
+                <input #desc pInputText id="indirizzo" [(ngModel)]="_detailDialogEntity.indirizzo" />
+            </div>
+            <div class="ui-g-6">
+                <label for="descrizione">Descrizione</label>
+                <input #desc pInputText id="descrizione" [(ngModel)]="_detailDialogEntity.descrizione" />
+            </div>
+            <div class="ui-g-6">
+                <label for="username">Username</label>
+                <input #desc pInputText id="username" [(ngModel)]="_detailDialogEntity.username" />
+            </div>
+            <div class="ui-g-6">
+                <label for="password">Password</label>
+                <input #desc type="password" pPassword id="password" [(ngModel)]="_detailDialogEntity.password" 
+                    class="ui-inputtext ui-corner-all"/>
+            </div>
+            <div class="ui-g-6 bds">
+                <label for="messagePolicy">Policy</label>
+                <p-dropdown 
+                    #desc
+                    id="messagePolicy"
+                    [options]="messagesPolicy" 
+                    [(ngModel)]="_detailDialogEntity.messagePolicy" 
+                    placeholder="Seleziona la Policy"
+                    appendTo="body">
+                </p-dropdown>                
+            </div>
+            <div class="ui-g-6">
+                <label for="idPecProvider.descrizione">Provider</label>
+                <nextsdr-primeng-autocomplete 
+                    id="idPecProvider" 
+                    field="descrizione" 
+                    [(value)]="_detailDialogEntity.idPecProvider"
+                    [serviceQueringWrapper]="{service: pecProviderService}" 
+                    [dropdown]="true" 
+                    appendTo="body">
+                </nextsdr-primeng-autocomplete>
+            </div>
+            <div class="ui-g-12">
+                <label for="messagePolicy">Aziende associate</label>
+                <app-combo-aziende [(azienda)]="_detailDialogEntity._aziendeSelezionateDialog" 
+                    [multiple] = "true" [filterByRole]="true"></app-combo-aziende>
+            </div>
+        </div>
+
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                <button type="button" pButton icon="pi pi-check" (click)="detailDialogSave()" label="Salva"></button>
+                <button type="button" pButton icon="pi pi-times" (click)="_displayDetailDialog = false" label="Chiudi"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+
+<!--     <p-dialog appendTo="body" [responsive]="true" showEffect="fade" [modal]="true" [width]="900" [height]="600"
+        [(visible)]="_gestoriDialogVisible" styleClass="pec-dialog" header="Gestori Pec">
+        <app-gestori-pec *ngIf="_selectedPecPerGestori && _gestoriDialogVisible" [pec]="_selectedPecPerGestori" [azienda]="_azienda"
+            (aggiornatiGestori)="refreshData()"></app-gestori-pec>
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                <button type="button" pButton icon="pi pi-times" (click)="gestoriPecVisible = false"
+                    label="Chiudi"></button>
+            </div>
+        </p-footer>
+    </p-dialog> -->
+</div>

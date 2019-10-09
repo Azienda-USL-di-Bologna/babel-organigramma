@@ -1,0 +1,59 @@
+
+<p-table #dt 
+    [value]="utentiStruttura" 
+    [columns]="cols" 
+    [autoLayout]="true" 
+    selectionMode="single" 
+    [lazy]="true" 
+    (onLazyLoad)="handleEvent('onLazyLoad', $event)" 
+    [paginator]="false"
+    [rows]="rows"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [scrollable]="true"
+    scrollHeight="60vh"
+    [(selection)]="selectedRow"
+    >
+  
+    <ng-template pTemplate="colgroup" let-columns>
+        <colgroup>
+            <col *ngFor="let col of columns">
+
+        </colgroup>
+    </ng-template>
+
+
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns"  [pSortableColumn]="col.field">
+                {{col.header}}
+                <p-sortIcon [field]="col.field" ></p-sortIcon>
+<!--                 ariaLabelAsc="Colonnna {{col.header}}, Ordinamento ascendente"  
+                ariaLabelDesc="Colonnna {{col.header}}, Ordinamento discendente" -->
+            </th>
+        </tr>
+        <tr>           
+            <td *ngFor="let col of columns" [ngSwitch]="col.field">
+                <input *ngSwitchDefault pInputText attr.aria-label="Colonnna {{col.header}}, Cella filtro" 
+                    type="text" 
+                    (input)="dt.filter($event.target.value, col.field, col.filterMatchMode)"  
+                    [value]="dt.filters[col.field] ? dt.filters[col.field].value : ''"
+                    style="width:100%" 
+                    #filterInputText>
+            </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData let-utenteStruttura>
+        <tr class="row-class" [pSelectableRow]="rowData">
+            <td class="column-class" >{{utenteStruttura.idUtente.idPersona.cognome}}</td>
+            <td class="column-class" >{{utenteStruttura.idUtente.idPersona.nome}}</td>
+            <td class="column-class" >{{utenteStruttura.idUtente.idPersona.codiceFiscale}}</td>
+            <td class="column-class" >{{utenteStruttura.idAfferenzaStruttura.descrizione}}</td>
+        </tr>
+
+    </ng-template>
+</p-table>
+
+
+
+

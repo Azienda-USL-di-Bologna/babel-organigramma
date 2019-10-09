@@ -1,0 +1,128 @@
+.title {
+  text-align: center;
+  margin-bottom: 0;
+  padding: 0;
+}
+.title .title-label {
+  color: #993366;
+  margin-right: 10px;
+}
+.title .title-pec {
+  font-style: italic;
+  font-weight: initial;
+}
+:host>>>.up-buttons button {
+  float: right;
+  width: 130px;
+  margin-left: 5px;
+  height: 35px;
+  line-height: 35px;
+  /* background-color: cornflowerblue; */
+}
+
+/* :host>>> .ui-table-scrollable-header {
+  overflow-y: scroll;
+  } */
+
+  :host>>>.ui-table-scrollable-header-box {
+    margin-right: 17px !important;
+    }
+    
+    :host>>>.ui-table-scrollable-body {
+    margin-right: 17px !important;
+    }
+
+  
+    ::-webkit-scrollbar {
+    width: 10px;
+    }
+    :host>>>.ui-table-scrollable-header {
+    overflow-y: scroll;
+    }
+
+
+:host>>> ::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; 
+}
+
+/* :host>>> .ui-table-scrollable-header::-webkit-scrollbar {
+  background: transparent; 
+} */
+
+:host>>>.table-gestori {
+  box-shadow: 0px 10px 19px #d8d7d7, 0px 0px 0px #888
+}
+
+.add-fields-dialog-container{
+  font-weight:bold;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* // INSERIMENTO DI TANTI UTENTI PER UN SINGOLO PERMESSO (BOCCIATO) 
+.heroes {
+  margin: 0 0 2em 0;
+  list-style-type: none;
+  padding: 0;
+  width: 20em;
+}
+.heroes li {
+  position: relative;
+  cursor: pointer;
+  background-color: #EEE;
+  margin: .5em;
+  padding: .4em;
+  height: 2.2em;
+  border-radius: 4px;
+}
+
+.heroes span {
+  position: relative;
+  display: block;
+  width: 250px;
+}
+
+button.delete {
+  position: relative;
+  border: none;
+  padding: 5px 9px;
+  left: 229px;
+  top: -21px;
+  border-radius: 4px;
+  height: 1.8em;
+  background-color: gray !important;
+  color: white;
+}
+ */
+
+
+
+/* 
+color: #888;
+text-decoration: none;
+position: relative;
+  padding: 5px 10px;
+  left: 194px;
+  top: -32px;
+width: 250px; 
+*/
+
+
+/* :host>>>body .ui-table .ui-table-tbody > tr > td {
+  padding: .25em .5em;
+}
+
+:host>>>.ui-table .ui-table-tbody>tr>td.ui-editing-cell input {
+
+}
+ */
+
+>>>.autocomplete-editing-gestori-pec p-autocomplete span input, >>>.autocomplete-editing-gestori-pec span input {
+  padding: 0.429em !important;
+  border: 1px solid #a6a6a6 !important;
+}
+/* 
+>>> .button-elimina-gestore {
+  padding: .25em .5em !important;
+} */

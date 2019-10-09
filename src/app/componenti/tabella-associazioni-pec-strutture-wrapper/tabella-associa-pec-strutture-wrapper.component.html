@@ -1,0 +1,21 @@
+
+<div class = "p-grid">
+
+  <div class="p-col-6">
+    <h4 *ngIf="_aziendaAndStruttura"  class="struttura-selezionata">{{_strutturaSelezionata?.nome}}</h4>
+  </div>
+  <div class="p-col-6 up-buttons">
+      <button *ngIf="_aziendaAndStruttura" pButton icon="pi pi-plus" (click)="tabAssPecStr.nuovaAssociazione()" label="Associa nuova PEC"
+          pTooltip="Associa una nuova Pec alla Struttura" class="bds-button">
+      </button>
+      <button *ngIf="(loginService.loggedUser$|async).hasRole(_CODICI_RUOLO.CI) || (loginService.loggedUser$|async).hasRole(_CODICI_RUOLO.CA)" 
+          pButton label="Anagrafe delle PEC"
+          pTooltip="Apri Anagrafe delle PEC" class="bds-button" routerLink="/elenco-pec" routerLinkActive="active">
+      </button>
+  </div>
+
+  <app-tabella-associa-pec-strutture  *ngIf="_aziendaAndStruttura"
+     #tabAssPecStr 
+    class="p-col-12" [aziendaAndStruttura]="_aziendaAndStruttura">
+  </app-tabella-associa-pec-strutture>
+</div>

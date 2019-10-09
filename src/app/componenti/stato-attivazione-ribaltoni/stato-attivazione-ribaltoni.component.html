@@ -1,0 +1,88 @@
+<p-table 
+  [value]="statoRibaltoni"
+  [columns]="cols"
+  dataKey="id"
+  rowExpandMode="single"
+  (onRowExpand)="onRowExpand($event)"
+  styleClass="table-stato-ribaltoni">
+  <ng-template pTemplate="header" let-columns>
+    <tr>
+      <th class="expansion-column"></th>
+      <th *ngFor="let col of columns" [style.width]="col.style?.width">
+        {{col.header}}
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
+    <tr>
+      <td>
+        <a href="#" [pRowToggler]="rowData">
+          <i [ngClass]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></i>
+        </a>
+      </td>
+      <td *ngFor="let col of columns" [ngStyle]="col.style">
+        <nextsdr-primeng-table-column-body *ngIf="!(['stato','button'].indexOf(col.field) > -1)"
+          [column]="col" 
+          [rowData]="rowData">
+        </nextsdr-primeng-table-column-body>
+        <div *ngIf="col.field === 'stato'">
+          {{rowData.ribaltoneDaLanciareList[0]?.stato}}
+        </div>
+        <!-- <ng-template *ngIf="col.field === 'ribaltaArgo'" let-row="rowData">
+            <p-checkbox binary="true" [(ngModel)]="row.ribaltaArgo"></p-checkbox>
+        </ng-template> -->
+        <button pButton *ngIf="col.field === 'button'"
+          icon="pi pi-pencil" 
+          (click)="editaAttivazione(rowData)"
+          pTooltip="Edita l'attivazione del ribaltone">
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="rowexpansion" let-rowData let-columns="columns">
+    <tr>
+      <td [attr.colspan]="columns.length + 1">
+        <app-storico-attivazione-ribaltoni
+          [idAzienda]="idAziendaExpanded"
+          class="storico-attivazioni">
+        </app-storico-attivazione-ribaltoni>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog header="Edita la configurazione del ribaltone" [(visible)]="editingVisible" [style]="{width: '300px'}" modal="true">
+  Stai editando: <h4 style="display: inline">{{editingRow?.idAzienda?.descrizione}}</h4>
+  <div class="ui-g-12" style="margin-top: 8px;">
+    <p-checkbox 
+      name="group2" 
+      label="Ribalta su Internauta (da fonte esterna a BabOrg)"
+      [(ngModel)]="editingRow.ribaltaInternauta" 
+      binary="true">
+    </p-checkbox>
+  </div>
+  <div class="ui-g-12">
+    <p-checkbox 
+      name="group2" 
+      label="Ribalta da Internauta su locale (da BabOrg a locale)" 
+      [(ngModel)]="editingRow.ribaltaArgo" 
+      binary="true">
+    </p-checkbox>
+  </div>
+  <div style="margin-top: 8px" class="ui-g-12">
+    <span class="ui-float-label">
+      <textarea pInputText id="float-text"
+        class="text-area-editing"
+        [(ngModel)]="editingRow.note">
+      </textarea>
+      <label for="float-text">Inserisci le tue note</label>
+    </span>
+  </div>
+  <p-footer>
+    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+      <button pButton icon="pi pi-check" label="Salva" (click)="saveEditing()" style="width: 100px"></button>
+      <button pButton icon="pi pi-times" label="Annulla" (click)="editingVisible = false" style="width: 100px"></button>
+    </div>
+  </p-footer>
+</p-dialog>
+<p-toast></p-toast>

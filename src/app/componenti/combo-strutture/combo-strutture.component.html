@@ -1,0 +1,34 @@
+<!-- <p-autoComplete  
+  [(ngModel)]="_strutturaIniziale"
+  [disabled]="!_enabled"
+  [suggestions]="filteredstrutture" 
+  (completeMethod)="handleEvent('completeMethod', $event)" 
+  (onSelect)="handleEvent('onSelect', $event)" 
+  field="nome" 
+  [size]="30" 
+  appendTo="body"
+  placeholder="Scegli la struttura" 
+  [minLength]="1" 
+  [dropdown]="true"
+  emptyMessage="Nessuna struttura trovata">
+</p-autoComplete> -->
+
+<!-- ************************************************* -->
+<!-- NB -->
+<!-- DEPRECATO. usa app-combo-strutture-new invece -->
+<!-- ************************************************** -->
+
+<nextsdr-primeng-autocomplete #combo 
+  id="struttura" 
+  field="campoCustom" 
+  minlength="1"
+  placeholder="Seleziona una struttura" 
+  [(value)]="_strutturaIniziale"
+  [serviceQueringWrapper]="serviceStruttureFiltrate" 
+  [dropdown]="true" 
+  [disabled]="!_enabled"
+  appendTo="body"
+  [createQueryParams]="createQueryParamsComboStrutture"
+  [transformValuesAfterQuery]="trasformValuesAfterSearch"
+  (onSelect)="handleEvent('onSelect', $event)">
+</nextsdr-primeng-autocomplete>

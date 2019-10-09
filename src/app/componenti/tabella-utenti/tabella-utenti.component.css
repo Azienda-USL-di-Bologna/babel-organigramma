@@ -1,0 +1,11 @@
+.row-class{
+    height: 40px;
+}
+
+
+
+.column-class{
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}

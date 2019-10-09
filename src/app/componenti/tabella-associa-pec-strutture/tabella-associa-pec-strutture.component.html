@@ -1,0 +1,158 @@
+<p-table #dtAssociazioni 
+    [columns]="_cols" 
+    [autoLayout]="true" 
+    [rowsPerPageOptions]="[5,8,10,15,20]" 
+    [lazy]="true"
+    [rows]="100">
+
+    <!--TEMPLATE PER HEADERS-->
+    <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th *ngFor="let col of columns" [style.width]="col.style?.width" [style.minWidth]="col.style?.minWidth">
+                {{col.header}}
+            </th>
+            <th [style.width]="'50px'"></th>
+            <th [style.width]="'50px'"></th>
+        </tr>
+        <!-- <tr>
+            <th *ngFor="let col of columns" [ngSwitch]="col.fieldType">
+                <nextsdr-primeng-table-search-body [column]="col" [tableComponent]="dtAssociazioni"></nextsdr-primeng-table-search-body>
+            </th>
+            <th [style.width]="'50px'"></th>
+        </tr> -->
+    </ng-template>
+
+    <!--TEMPLATE PER BODY-->
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr [pSelectableRow]="rowData">
+            <td *ngFor="let col of columns" [style.width]="col.style?.width"
+                [style.textAlign]="col.style?.textAlign" [style.minWidth]="col.style?.minWidth">
+                <div
+                    *ngIf="col.field !== 'permessi.principale' && col.field !== 'permessi.propaga_soggetto' && col.field !== 'gestori' && col.field !== 'indirizzo'">
+                    <nextsdr-primeng-table-column-body [column]="col" [rowData]="rowData">
+                    </nextsdr-primeng-table-column-body>
+                </div>
+                <div *ngIf="col.field === 'indirizzo'">
+                    <a (click)="apriPecStrutture(rowData)" style="cursor: pointer">
+                        {{rowData.indirizzo}}
+                    </a>
+                    <!-- <nextsdr-primeng-table-column-body 
+                            [column]="col" 
+                            [rowData]="rowData" 
+                            (click)="apriPecStrutture(rowData)" 
+                            style="cursor: pointer">
+                        </nextsdr-primeng-table-column-body> -->
+
+                    <!-- <button pButton 
+                        type="button" 
+                        icon="pi pi-eye" 
+                        (click)="apriPecStrutture(rowData)"
+                        pTooltip="Vedi strutture associate a questa pec"
+                        class="bds-button button-gestori p-col-2">
+                    </button> -->
+                </div>
+                <div *ngIf="col.field === 'permessi.principale'">
+                    <p-checkbox [ngModel]="buildPermessiPrincipale(rowData)" disabled="true" binary="true">
+                    </p-checkbox>
+                </div>
+                <div *ngIf="col.field === 'permessi.propaga_soggetto'"
+                    [pTooltip]="buildPermessiPropagaSoggetto(rowData, true)">
+                    <div>{{buildPermessiPropagaSoggetto(rowData)}}</div>
+                </div>
+                <div *ngIf="col.field === 'gestori'">
+                    <a (click)="apriGestoriPec(rowData)" style="cursor: pointer">
+                        {{buildGestori(rowData)}}
+                    </a>
+                    <!-- <button pButton 
+                        type="button" 
+                        icon="pi pi-users" 
+                        (click)="apriGestoriPec(rowData)"
+                        pTooltip="Gestori pec" 
+                        class="bds-button button-gestori p-col-2">
+                    </button> -->
+                </div>
+            </td>
+            <td [style.width]="'50px'">
+                <button pButton type="button" icon="pi pi-pencil" (click)="editaAssociazione(rowData)"
+                    pTooltip="Edita associazione" class="bds-button"
+                    [disabled]="rowData.permessi[0]?.categorie[0]?.permessi[0]?.virtuale">
+                </button>
+            </td>
+            <td [style.width]="'50px'">
+                <button pButton type="button" icon="pi pi-trash" (click)="eliminaAssociazione(rowData)"
+                    pTooltip="Elimina associazione" class="bds-button"
+                    [disabled]="rowData.permessi[0]?.categorie[0]?.permessi[0]?.virtuale">
+                </button>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage" let-columns>
+        <tr>
+            <td [attr.colspan]="columns.length + 1" style="text-align: center">
+                Nessuna Pec è associata a questa struttura
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+
+<p-dialog appendTo="body" [responsive]="true" showEffect="fade" [modal]="true" [width]="500"
+    [(visible)]="editingVisibile" styleClass="pec-strutture-dialog" header="Gestisci associazione Pec-Struttura">
+    <div *ngIf="pecInEditing" class="ui-g ui-fluid dialog-content">
+        <div class="ui-g-12">
+            <!-- <label for="indirizzo">Pec</label> -->
+            <nextsdr-primeng-autocomplete id="idPec" field="idPec.indirizzo" [(value)]="pecInEditing.pecAzienda"
+                [serviceQueringWrapper]="serviceQWcomboPecAzienda" [dropdown]="true" appendTo="body"
+                placeholder="Seleziona la pec da aggiungere" [disabled]="pecInEditing.tipoDiEditing == 'update'">
+            </nextsdr-primeng-autocomplete>
+        </div>
+        <div class="ui-g-12">
+            <p-checkbox [(ngModel)]="pecInEditing.principale" binary="true"></p-checkbox>
+            <label for="principale" style="margin-left: 20px">Principale</label>
+        </div>
+        <div class="ui-g-12">
+            <p-checkbox [(ngModel)]="pecInEditing.propaga" binary="true"></p-checkbox>
+            <label for="propaga" style="margin-left: 20px">Propaga</label>
+        </div>
+    </div>
+    <p-footer>
+        <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+            <button type="button" pButton icon="pi pi-check" (click)="salvaPec()" label="Ok"></button>
+            <button type="button" pButton icon="pi pi-times" (click)="editingVisibile = false"
+                label="Chiudi"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+
+<p-confirmDialog #cd appendTo="body" header="Conferma" icon="pi pi-exclamation-triangle" width="425"
+key="eliminaAssociazione">
+<p-footer>
+    <button type="button" pButton icon="" label="Si" (click)="cd.accept()"></button>
+    <button type="button" pButton icon="" label="No" (click)="cd.reject()"></button>
+</p-footer>
+</p-confirmDialog>
+
+
+<p-dialog appendTo="body" [responsive]="true" showEffect="fade" [modal]="true" [width]="900" [height]="600"
+[(visible)]="gestoriPecVisible" styleClass="pec-dialog" header="Gestori Pec">
+<app-gestori-pec *ngIf="pecSelezionata && _azienda && gestoriPecVisible" [pec]="pecSelezionata" [azienda]="_azienda"
+    (aggiornatiGestori)="refreshData()"></app-gestori-pec>
+<p-footer>
+    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+        <button type="button" pButton icon="pi pi-times" (click)="gestoriPecVisible = false"
+            label="Chiudi"></button>
+    </div>
+</p-footer>
+</p-dialog>
+
+<p-dialog appendTo="body" [responsive]="true" showEffect="fade" [modal]="true" [width]="1024" [height]="600"
+[(visible)]="pecStruttureVisible" styleClass="pec-dialog" header="Associazioni Pec-Strutture">
+<app-pec-strutture [pec]="pecSelezionata" [azienda]="_azienda"></app-pec-strutture>
+<p-footer>
+    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+        <button type="button" pButton icon="pi pi-times" (click)="pecStruttureVisible = false"
+            label="Chiudi"></button>
+    </div>
+</p-footer>
+</p-dialog>

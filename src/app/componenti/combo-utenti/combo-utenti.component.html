@@ -1,0 +1,16 @@
+<p-autoComplete  
+  [(ngModel)]="_utenteIniziale"
+  [disabled]="!_enabled"
+  [suggestions]="filteredUtenti" 
+  field="campoDaMostrare" 
+  [size]="30" 
+  appendTo="body"
+  placeholder="Scegli l'utente" 
+  [minLength]="1" 
+  [dropdown]="true"
+  emptyMessage="Nessun utente trovato"
+  (completeMethod)="handleEvent('completeMethod', $event)" 
+  (onSelect)="handleEvent('onSelect', $event)" 
+  (onClear)="handleEvent('onClear', $event)"
+  >
+</p-autoComplete>

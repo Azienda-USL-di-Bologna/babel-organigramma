@@ -1,0 +1,34 @@
+.log-box {
+    width: 550px;
+    height: 400px;
+    overflow: auto;
+}
+.header-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.colon-button {
+   width: 55px;
+   text-align: center;
+}
+.box {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+/* ::ng-deep .box .ui-table-caption.ui-widget-header.ng-star-inserted {
+    //text-align: right;
+} */
+/* :host ::ng-deep .ui-table .ui-table-thead > tr > th {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+}
+
+@media screen and (max-width: 64em) {
+    :host ::ng-deep .ui-table .ui-table-thead > tr > th {
+        top: 100px;
+    }
+} */

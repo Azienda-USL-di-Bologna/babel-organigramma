@@ -1,0 +1,16 @@
+<p-autoComplete  
+  [(ngModel)]="_strutturaIniziale"
+  [disabled]="!_enabled"
+  [suggestions]="_filteredStrutture" 
+  field="campoDaMostrare" 
+  [size]="30" 
+  appendTo="body"
+  placeholder="Scegli la struttura" 
+  [minLength]="1" 
+  [dropdown]="true"
+  emptyMessage="Nessuna struttura trovata"
+  (completeMethod)="handleEvent('completeMethod', $event)" 
+  (onSelect)="handleEvent('onSelect', $event)" 
+  (onClear)="handleEvent('onClear', $event)" 
+  >
+</p-autoComplete>

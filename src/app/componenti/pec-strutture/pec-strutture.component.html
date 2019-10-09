@@ -1,0 +1,144 @@
+<div class="p-grid">
+    <h3 class="p-col-12 title"><span class="title-label">Associazioni della Pec:</span><span class="title-pec">{{_pec?.descrizione}} - {{_pec?.indirizzo}}</span></h3>
+    <div class="p-col-12 up-buttons" *ngIf="!onlyReadMode">
+        <button
+            pButton icon="pi pi-plus"
+            (click)="editPermission(null)"
+            label="Aggiungi"
+            pTooltip="Associa una nuova struttura alla Pec"
+            class="bds-button">
+        </button>
+        <button
+            pButton icon="pi pi-save"
+            (click)="salvaTutto()"
+            label="Salva"
+            pTooltip="Salva tutto quello che vedi"
+            class="bds-button">
+        </button>
+    </div>
+    <p-table #dtAssociazioni
+        [columns]="_cols"
+        [autoLayout]="true"
+        [lazy]="true"
+        class="p-col-12"
+        [scrollable]="true" 
+        scrollHeight="430px">
+
+        <!--TEMPLATE PER HEADERS-->
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [style.width]="col.style?.width">
+                    {{col.header}}
+                    <!-- 
+                        [pSortableColumn]="col.field"
+
+                        p-sortIcon [field]="col.field"  
+                        ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon> -->
+                </th>
+                <th [style.width]="'50px'" *ngIf="!onlyReadMode"></th>
+            </tr>
+            <!-- <tr>
+                <th *ngFor="let col of columns" [ngSwitch]="col.fieldType">
+                    <nextsdr-primeng-table-search-body [column]="col" [tableComponent]="dtAssociazioni"></nextsdr-primeng-table-search-body>
+                </th>
+                <th [style.width]="'50px'"></th>
+            </tr> -->
+        </ng-template>
+
+        <!--TEMPLATE PER BODY-->
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr [pSelectableRow]="rowData">
+                <td *ngFor="let col of columns" [style.width]="col.style?.width" [style.textAlign]="col.style?.textAlign">
+                    <div *ngIf="col.field !== 'permessi.principale' && col.field !== 'permessi.propaga_soggetto'">
+                        <nextsdr-primeng-table-column-body [column]="col" [rowData]="rowData"></nextsdr-primeng-table-column-body>
+                    </div>
+                    <div *ngIf="col.field === 'permessi.principale'">
+                        <p-checkbox [ngModel]="buildPermessiPrincipale(rowData)" binary="true" disabled="onlyReadMode" (onChange)="togglePrincipale($event, rowData)"></p-checkbox>
+                    </div>
+                    <div pEditableColumn *ngIf="col.field === 'permessi.propaga_soggetto'">
+                        <p-checkbox [ngModel]="buildPermessiPropagaSoggetto(rowData)" binary="true" disabled="onlyReadMode" (onChange)="togglePropagazione($event, rowData)"></p-checkbox>
+                    </div>
+                </td>
+                <td [style.width]="'50px'" *ngIf="!onlyReadMode">
+                    <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        (click)="eliminaPermesso(rowData)"
+                        pTooltip="Elimina"
+                        class="bds-button">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog #dialog 
+        appendTo="body" 
+        [responsive]="true" 
+        showEffect="fade" 
+        [modal]="true" 
+        [width]="900"
+        [height]="600"
+        [(visible)]="editingVisibile"
+        styleClass="pec-strutture-dialog">
+        <div class="ui-g ui-fluid dialog-content">
+            <app-albero-strutture 
+                [azienda]="{id: 2}"
+                [alreadyChecked]="alreadyChecked"
+                searchType="strutture"
+                selectionType="checkbox"
+                class="albero-strutture">
+            </app-albero-strutture>   
+        </div>
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                <button type="button" pButton icon="pi pi-check" (click)="struttureSelectate()" label="Scegli"></button>
+                <button type="button" pButton icon="pi pi-times" (click)="editingVisibile = false" label="Chiudi"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>
+
+<p-confirmDialog header="Conferma" icon="pi pi-exclamation-triangle" width="425" #cd>
+    <p-footer>
+        <button type="button" pButton icon="" label="No" (click)="cd.reject()"></button>
+        <button type="button" pButton icon="" label="Si" (click)="cd.accept()"></button>
+    </p-footer>
+</p-confirmDialog>
+
+
+<!-- 
+<p-dialog #dialog 
+        appendTo="body" 
+        [responsive]="true" 
+        showEffect="fade" 
+        [modal]="true" 
+        [width]="700" 
+        [(visible)]="dialog.visible">
+        <nextsdr-edit-primeng #editComponent
+            [template]="atemplate"
+            (onStartEdit)="dialog.visible=true"
+            (onFinishEdit)="dialog.visible=false"
+            [hideFooter]="true"
+            >
+        </nextsdr-edit-primeng>
+        <ng-template #atemplate let-entity="entity" let-mode="mode">
+            <div *ngIf="entity" class="ui-g ui-fluid">
+                <app-albero-strutture 
+                    [azienda]="{id: 2}"
+                    searchType="strutture"
+                    selectionType="checkbox">
+                </app-albero-strutture>   
+            </div>
+        </ng-template>
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                <button type="button" pButton icon="pi pi-check"  label="Applica"></button>
+                <button type="button" pButton icon="pi pi-times" (click)="editComponent.cancel()" label="Chiudi"></button>
+            </div>
+        </p-footer>
+    </p-dialog> -->

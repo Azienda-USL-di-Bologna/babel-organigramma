@@ -1,0 +1,21 @@
+
+
+<p-autoComplete  
+  [(ngModel)]="_azienda" (ngModelChange)="valueChange($event)"
+  [disabled]="!_enabled"
+  [suggestions]="filteredAziende" 
+  field="descrizione" 
+  [size]="30" 
+  appendTo="body"
+  placeholder="Scegli l'azienda" 
+  [minLength]="1" 
+  [dropdown]="true"
+  emptyMessage="Nessuna azienda trovata"
+  [readonly]="_readonly"
+  [multiple]="_multiple"
+  (completeMethod)="handleEvent('completeMethod', $event)"
+  (onSelect)="handleEvent('onSelect', $event)"
+  (onClear)="handleEvent('onClear', $event)"
+  >
+</p-autoComplete>
+<!-- type="search" -->

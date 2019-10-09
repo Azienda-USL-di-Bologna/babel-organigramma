@@ -1,0 +1,15 @@
+<p-dropdown  
+  [(ngModel)]="value"
+  (ngModelChange)="valueChange.emit($event)"
+  [filter]="filter"
+  [filterBy]="filterBy"
+  [disabled]="!_enabled"
+  [options]="items" 
+  (onChange)="onChange($event)"
+  (onClick)="onClick($event)"
+  [appendTo]="_appendTo"
+  placeholder="Scegli l'utente"
+  emptyMessage="Nessun utente trovato"
+  [style]="_style"
+  >
+</p-dropdown>

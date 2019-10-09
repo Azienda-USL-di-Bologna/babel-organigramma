@@ -1,0 +1,10 @@
+<p-autoComplete  
+  [(ngModel)]="_tipoOperazioneIniziale"
+  [disabled]="!_enabled"
+  [suggestions]="filteredTipiOperazione" 
+  (completeMethod)="handleEvent('completeMethod', $event)" 
+  (onSelect)="handleEvent('onSelect', $event)" 
+  [size]="30" appendTo="body"
+  placeholder="Scegli il tipo operazione" [minLength]="1" [dropdown]="true"
+  emptyMessage="Nessun tipo operazione trovato">
+</p-autoComplete>

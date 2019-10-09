@@ -1,0 +1,14 @@
+:host .struttura-selezionata {
+    margin: 0;
+}
+
+.up-buttons{
+    text-align: right;
+}
+:host>>>.up-buttons button {
+    /* float: right; */
+    width: auto;
+    margin-left: 5px;
+    height: 35px;
+    line-height: 35px;
+}

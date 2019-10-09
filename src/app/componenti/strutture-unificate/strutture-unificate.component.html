@@ -1,0 +1,214 @@
+<p-toast></p-toast>
+
+<div class="p-grid">
+    <div class="p-col-12 bozza-buttons" *ngIf="stato === STATI.Bozza">
+        <button
+            pButton 
+            (click)="activateRecords()" 
+            label="Attiva Bozze"
+            pTooltip="Attiva tutte le unificazioni attualmente in bozza"
+            class="bozza-button"
+            [disabled]="selectedRows.length == 0">
+        </button>
+        <button
+            pButton icon="pi pi-plus" 
+            (click)="showDettaglioRecordDialog()" 
+            label="Aggiungi"
+            pTooltip="Crea una nuova bozza di unificazione"
+            class="bozza-button">
+        </button>
+    </div>
+    <div class="p-col-12">
+        <p-table #dt 
+            [value]="struttureUnificate" 
+            [columns]="cols" [rows]="10" 
+            [paginator]="true" [autoLayout]="true" 
+            [rowsPerPageOptions]="[5,10,15,20]"
+            [lazy]="true" 
+            [totalRecords]="totalRecords"
+            [(selection)]="selectedRows"
+            (onLazyLoad)="handleEvent('onLazyLoad', $event)" 
+            (onHeaderCheckboxToggle)="handleEvent('onHeaderCheckboxToggle', $event)"
+            (onRowSelection)="handleEvent('onRowSelection', $event)">
+
+
+            <ng-template pTemplate="colgroup" let-columns>
+                <colgroup>
+                    <col *ngFor="let col of columns">
+                </colgroup>
+            </ng-template>
+
+
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    
+                    <th *ngFor="let col of columns">
+                        <div *ngIf="col.field != undefined" [pSortableColumn]="col.field">
+                            {{col.header}}
+                            <p-sortIcon [field]="col.field" >
+                            </p-sortIcon>
+<!--                             ariaLabelAsc="Colonnna {{col.header}}, Ordinamento ascendente" 
+                            ariaLabelDesc="Colonnna {{col.header}}, Ordinamento discendente" -->
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <!-- <td *ngIf="stato === STATI.Bozza"></td> -->
+                    <td *ngFor="let col of columns" [ngSwitch]="col.filterWidget">
+                        <div *ngIf="col.field != undefined">
+                            <p-calendar #calGen *ngSwitchCase="'Calendar'" [(ngModel)]="dataRange[col.field]" placeholder="Scegli..." showButtonBar="true"
+                                [locale]="localIt" [showIcon]="false" dateFormat="dd/mm/yy" (onSelect)="onCalendarAction($event, col.field, 'select')"
+                                (onClearClick)="onCalendarAction($event, col.field, 'clear')" (onTodayClick)="onCalendarAction($event, col.field, 'today')"
+                                appendTo="body" selectionMode="range" readonlyInput="true" [pTooltip]="calendarTooltip(col.field)" inputId="CalInput_{{col.field}}">
+                            </p-calendar>
+                            <input *ngSwitchDefault pInputText attr.aria-label="Colonnna {{col.header}}, Cella filtro" type="text" (input)="dt.filter($event.target.value, col.field, col.filterMatchMode)"
+                                style="width:100%" #filterInputText>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-strutturaUnificata>
+                <tr class="row-class" [pSelectableRow]="strutturaUnificata" [ngClass]="{'bozza-attiva': stato === STATI.Bozza && strutturaUnificata.dataAccensioneAttivazione != null}">
+                    <td *ngIf="stato === STATI.Bozza">
+                        <p-tableCheckbox [value]="strutturaUnificata" [disabled]="!strutturaUnificata.dataAttivazione || strutturaUnificata.dataAccensioneAttivazione != null"></p-tableCheckbox>
+                    </td>
+                    <td class="column-class">{{strutturaUnificata.dataAttivazione | date:'dd/MM/yyyy'}}</td>
+                    <td *ngIf="stato === STATI.Storico || stato === STATI.Corrente" class="column-class">{{strutturaUnificata.dataDisattivazione | date:'dd/MM/yyyy'}}</td>
+                    <td class="column-class">{{strutturaUnificata.idStrutturaSorgente.idAzienda.descrizione}}</td>
+                    <td class="column-class">{{strutturaUnificata.idStrutturaSorgente.descrizioneCustom}}</td>
+                    <td class="column-class">{{strutturaUnificata.idStrutturaDestinazione.idAzienda.descrizione}}</td>
+                    <td class="column-class">{{strutturaUnificata.idStrutturaDestinazione.descrizioneCustom}}</td>
+                    <td class="column-class">{{strutturaUnificata.tipoOperazione}}</td>
+                    <td class="column-class">{{strutturaUnificata.dataInserimentoRiga | date:'dd/MM/yyyy'}}</td>
+                    <td *ngIf="stato === STATI.Bozza">
+                        <button pButton icon="pi pi-pencil" 
+                            (click)="showDettaglioRecordDialog(strutturaUnificata)"
+                            pTooltip="Modifica bozza"
+                            class="bozza-button">
+                        </button>
+                    </td>
+                    <td *ngIf="stato === STATI.Bozza">
+                        <button pButton icon="pi pi-trash" 
+                            (click)="deleteRecord(strutturaUnificata)"
+                            pTooltip="Elimina bozza"
+                            class="bozza-button">
+                        </button>
+                    </td>
+                    <td *ngIf="stato === STATI.Corrente && loggedUser.isCI()">
+                        <button pButton icon="pi pi-power-off" 
+                            (click)="showDeactivateDialog(strutturaUnificata)" 
+                            class="ui-button-danger"
+                            pTooltip="Disattiva unificazione"
+                            class="deactivate-button">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- <ng-template *ngIf="stato === STATI.Bozza" pTemplate="summary" let-rowData>
+                <div style="text-align:left">
+                    <button type="button" pButton icon="fa fa-plus" (click)="showDialogToAdd()" label="Aggiungi"></button>
+                </div>
+            </ng-template> -->
+
+        </p-table>
+    </div>
+</div>
+
+
+<p-dialog header="Dettaglio record" [(visible)]="displayDettaglioRecordDialog" [responsive]="true" showEffect="fade" [modal]="true" [width]="700"
+    appendTo="body">
+    <div class="p-grid ui-fluid editing-grid" *ngIf="strutturaUnificataPopup">
+        <div class="p-col-4">
+            <label for="az-sorg">Azienda sorgente</label>
+        </div>
+        <div class="p-col-8">
+            <app-combo-aziende [(azienda)]="aziendaSorgente" (aziendaChange)="aziendaSorgSelezionataRecived($event)">
+            </app-combo-aziende>
+        </div>
+        <div class="p-col-4">
+            <label for="st-sorg">Struttura sorgente</label>
+        </div>
+        <div class="p-col-8">
+            <app-combo-strutture [enabled]="aziendaSorgente" [azienda]="aziendaSorgente" [strutturaIniziale]="strutturaUnificataPopup.idStrutturaSorgente"
+                (strutturaSelezionataEmit)="strutturaSorgSelezionataRecived($event)">
+            </app-combo-strutture>
+        </div>
+        <div class="p-col-4">
+            <label for="az-dest">Azienda destinazione</label>
+        </div>
+        <div class="p-col-8">
+            <app-combo-aziende [(azienda)]="aziendaDestinazione" (aziendaChange)="aziendaDestSelezionataRecived($event)">
+            </app-combo-aziende>
+        </div>
+        <div class="p-col-4">
+            <label for="st-dest">Struttura destinazione</label>
+        </div>
+        <div class="p-col-8">
+            <app-combo-strutture [enabled]="aziendaDestinazione" [azienda]="aziendaDestinazione" [strutturaIniziale]="strutturaUnificataPopup.idStrutturaDestinazione"
+                (strutturaSelezionataEmit)="strutturaDestSelezionataRecived($event)">
+            </app-combo-strutture>
+        </div>
+        <div class="p-col-4">
+            <label for="tp-operaz">Tipo operazione</label>
+        </div>
+        <div class="p-col-8">
+            <app-combo-tipi-operazione [tipoOperazioneIniziale]="strutturaUnificataPopup.tipoOperazione" (tipoOperazioneSelezionataEmit)="tipoOperazioneSelezionataRecived($event)">
+            </app-combo-tipi-operazione>
+        </div>
+        <div class="p-col-4">
+            <label>Data attivazione</label>
+        </div>
+        <div class="p-col-8">
+            <p-calendar
+                [(ngModel)]="strutturaUnificataPopup.dataAttivazione"
+                dateFormat="dd/mm/yy"
+                [locale]="localIt"
+                appendTo="body"
+                [showIcon]="true"
+                showButtonBar="true"
+                readonlyInput="true"
+                class="calendario-editing">
+            </p-calendar>
+        </div>
+    </div>
+    <p-footer>
+        <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+            <button type="button" pButton icon="pi pi-check" (click)="saveRecord()" label="Salva"></button>
+            <button type="button" pButton icon="pi pi-times" (click)="closeDettaglioRecordDialog()" label="Chiudi"></button>
+        </div>
+    </p-footer>
+</p-dialog>
+
+<p-dialog 
+    header="Disattiva unificazione" 
+    [(visible)]="displayDisattivaDialog" 
+    [responsive]="true" 
+    showEffect="fade" 
+    [modal]="true" 
+    appendTo="body">
+    <div class="p-grid">
+        <div class="p-col-4">
+            <label>Data disattivazione</label>
+        </div>
+        <div class="p-col-8">
+            <p-calendar
+                [(ngModel)]="datiDisattivazionePopup.dataDisattivazione"
+                dateFormat="dd/mm/yy"
+                [locale]="localIt"
+                appendTo="body"
+                [showIcon]="true"
+                readonlyInput="true"
+                class="calendario-editing"
+                showButtonBar="true">
+            </p-calendar>
+        </div>
+    </div>
+    <p-footer>
+        <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+            <button type="button" pButton icon="pi pi-check" (click)="deactivateRecord()" label="Disattiva" 
+                [disabled]="!datiDisattivazionePopup.dataDisattivazione"></button>
+            <button type="button" pButton icon="pi pi-times" (click)="closeDisattivaDialog()" label="Chiudi"></button>
+        </div>
+    </p-footer>
+</p-dialog>

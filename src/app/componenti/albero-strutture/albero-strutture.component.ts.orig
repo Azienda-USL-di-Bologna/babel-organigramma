@@ -1,0 +1,221 @@
+import { Component, Input, Output, EventEmitter, ViewChild } from "@angular/core";
+import { StrutturaService } from "../../services/struttura-service";
+import { TreeNode, SelectItem } from "primeng/api";
+import { FILTER_TYPES, SORT_MODES, FiltersAndSorts, SortDefinition, FilterDefinition } from "@bds/nt-communicator";
+import { Struttura, Azienda, UtenteStruttura } from "@bds/ng-internauta-model";
+import { NO_LIMIT } from "../../../environments/app-constants";
+import { StrutturaUnificataService } from "src/app/services/strutturaunificata-service";
+
+@Component({
+  selector: "app-albero-strutture",
+  templateUrl: "./albero-strutture.component.html",
+  styleUrls: ["./albero-strutture.component.css"],
+})
+export class AlberoStruttureComponent {
+  public nodes: TreeNode[] = [];
+  public selectedNode: TreeNode;
+  public _azienda: Azienda;
+  public _strutturaSelezionata: Struttura;
+  public filtersAndSorts: FiltersAndSorts;
+  public strutturaSelezionataCombo: Struttura;
+  public struttureToExpandArray: number[];
+  public _setNodeStyle: any;
+  public _searchType: string = 'entrambi';
+  public _selectionType: string = 'single';
+
+
+  public searchButtons: SelectItem[] = [
+    { label: "Cerca per struttura", value: "strutture", icon: "pi pi-home" },
+    { label: "Cerca per utente", value: "utenti", icon: "pi pi-users" },
+  ];
+
+  public selectedSearchType: string = 'strutture';
+
+  @ViewChild("mytree") private mytree: any;
+
+  // setta l'azienda e carica i dati iniziali.
+  // ATTENZIONE: se il caricamento dei dati dev'essere fatto in un particolare momento, anche il passaggio dell'azienda in input va fatto in quel momento
+  @Input() set azienda(value: Azienda) {
+    this._azienda = value;
+    this.loadInitialData();
+  }
+
+  // funzione che calcola lo stile e i tooltip dei nodi
+  @Input() set setNodeStyle(value: string) {
+    this._setNodeStyle = value;
+  }
+  
+  /**
+   * tipo di ricerca
+   * Possibili valori: utenti, strutture, entrambi  
+   */
+  @Input() set searchType(value: string) {
+    this._searchType = value;
+    // setto la ricerca di default
+    if (this._searchType === 'entrambi') {
+      this.selectedSearchType = 'strutture'
+    } else {
+      this.selectedSearchType = this._searchType
+    }
+  }
+
+  /**
+   * tipo di selezione
+   * Possibili valori: single, multiple, checkbox
+   */
+  @Input() set selectionType(value: string) {
+    this._selectionType = value;
+  }
+
+  @Output() strutturaSelezionataEmit = new EventEmitter<Struttura>();
+  @Output() utenteStrutturaSelezionatoDaComboEmit = new EventEmitter<UtenteStruttura>();
+
+  constructor(private strutturaService: StrutturaService, private strutturaUnificataService: StrutturaUnificataService) {
+
+  }
+
+  public strutturaSelezionataDaComboRecived(strutturaSelezionata: Struttura) {
+    this._strutturaSelezionata = strutturaSelezionata;
+    this.activateStruttura(this._strutturaSelezionata);
+    this.selectNode(this._strutturaSelezionata);
+  }
+
+  public utenteStrutturaSelezionatoRecived(utenteStrutturaSelezionato: UtenteStruttura) {
+    this._strutturaSelezionata = utenteStrutturaSelezionato.idStruttura;
+    this.activateStruttura(this._strutturaSelezionata);
+    this.selectNode(this._strutturaSelezionata);
+    this.utenteStrutturaSelezionatoDaComboEmit.emit(utenteStrutturaSelezionato);
+  }
+
+  private loadInitialData(): void {
+    if (this._azienda) {
+      // 999999999 viene interpretato dal server come null. Devo fare così perchè si aspetta un numero.
+      this.loadData(999999999).then(
+        data => {
+          this.nodes = data;
+          // voglio che quando mi carica l'albero la prima volta il nodo radice sia espanso
+          this.nodes.forEach(element => {
+            element.expanded = true;
+            this.expandNode(element);
+          });
+        });
+    }
+  }
+
+  private loadData(parentId: number): any {
+    let nodes: TreeNode[];
+    this.filtersAndSorts = this.buildFiltersAndSorts(parentId);
+    return this.strutturaService.getData(null, this.filtersAndSorts, null).then(
+      data => {
+        if (data && data._embedded) {
+          nodes = this.buildNodes(data._embedded.struttura);
+          return nodes;
+        }
+      });/* .then(
+        data => data
+      ) */
+  }
+
+  private buildFiltersAndSorts(parentId: number): FiltersAndSorts {
+    const initialFiltersAndSorts = new FiltersAndSorts();
+    initialFiltersAndSorts.addFilter(new FilterDefinition("idStrutturaPadre.id", FILTER_TYPES.not_string.equals, parentId));
+    initialFiltersAndSorts.addFilter(new FilterDefinition("attiva=true&idAzienda.id", FILTER_TYPES.not_string.equals, this._azienda.id));
+    initialFiltersAndSorts.addSort(new SortDefinition("codice", SORT_MODES.asc));
+    initialFiltersAndSorts.rows = NO_LIMIT;
+    return initialFiltersAndSorts;
+  }
+
+  private expandNode(node: TreeNode): Promise<TreeNode[]> {
+    // espande il nodo passato
+    // se non ho i figli caricati li ricarico
+    // se li ricaricassi ogni volta perderei la selezione su un nodo figlio oltre a fare una chiamata inutile
+    if (node && !node.children) {
+      return this.loadData(node.data.id).then(data => {
+        node.children = data;
+        return node.children;
+      });
+    } else { // devo comunque ritornare una Promise coi dati
+      return Promise.resolve().then(val => node.children);
+    }
+  }
+
+  private buildNodes(strutture: Struttura[]): TreeNode[] {
+    const nodesToReturn: TreeNode[] = [];
+    strutture.forEach(struttura => {
+      let node: TreeNode = {};
+      node.label = struttura.nome;
+      node.data = struttura;
+      node.expandedIcon = "fa fa-folder-open";
+      node.collapsedIcon = "fa fa-folder";
+      node.leaf = struttura.foglia;
+      if (this._setNodeStyle) {
+        // Chi mi chiama vuole maneggiare i nodes.
+        node = this._setNodeStyle(struttura, node);
+      }
+      nodesToReturn.push(node);
+    });
+    return nodesToReturn;
+  }
+
+  public handleEvent(nome: string, event) {
+    switch (nome) {
+      case "onNodeExpand":
+        this.expandNode(event.node);
+        break;
+      case "onNodeSelect":
+        this.selectNode(event.node.data);
+        break;
+    }
+  }
+
+  public selectNode(strutturaSelezionata: Struttura): void {
+    this.strutturaSelezionataEmit.emit(strutturaSelezionata);
+  }
+
+  public activateStruttura(strutturaSelezionata: Struttura) {
+    if (strutturaSelezionata) {
+      // ci dobbiamo trovare tutte le strutture antenate di quella trovata nella ricerca per poterle espandere
+      // usiamo una funione custom che ci restituisce gli id delle strutture antenate
+      this.strutturaService.getStruttureAntenate(strutturaSelezionata.id).then(
+        data => {
+          this.struttureToExpandArray = data;
+          if (this.struttureToExpandArray.length > 0)
+            // selezioniamo il nodo trovato dalla ricerca
+            this.selectNodeAfterSearch(0, this.nodes);
+        }).catch(error => { console.log("ERRORE", error); });
+    }
+  }
+
+  private selectNodeAfterSearch(struttureToExpandArrayIndex: number, nodeToSearch: TreeNode[]) {
+    const strutturaToExpand: number = this.struttureToExpandArray[struttureToExpandArrayIndex];
+    const nodeToSelect: TreeNode = nodeToSearch.find(x => x.data.id === strutturaToExpand);
+    // dobbiamo espandere tutti i nodi antenati del nodo che stiamo cercando
+    // espandiamo anche il nodo stesso se non è una foglia
+    if (!nodeToSelect.data.foglia) {
+      nodeToSelect.expanded = true;
+      this.expandNode(nodeToSelect).then(childrens => {
+        if (this.struttureToExpandArray.length - 1 > struttureToExpandArrayIndex) {
+          this.selectNodeAfterSearch(struttureToExpandArrayIndex + 1, childrens);
+        }
+      });
+    }
+    if (struttureToExpandArrayIndex === this.struttureToExpandArray.length - 1) {
+      // siamo sul nodo che stiamo cercando
+      // quindi lo selezioniamo e scrolliamo a quell'elemento nell'albero
+      this.selectedNode = nodeToSelect;
+      this.scrollToSelectedNode();
+    }
+  }
+
+  private scrollToSelectedNode() {
+    // devo mettere un timeout altrimenti il nodo non ha ancora la classe "ui-treenode-content-selected" impostata.
+    // basta un timeout di 0, perchè serve solo a far si che venga schedulato in avanti dall'event looper
+    setTimeout(() => {
+      const selNodeElm: any[] = this.mytree.el.nativeElement.getElementsByClassName("ui-treenode-content-selected");
+      selNodeElm[0].scrollIntoView();
+    }, 0);
+  }
+
+
+
+}

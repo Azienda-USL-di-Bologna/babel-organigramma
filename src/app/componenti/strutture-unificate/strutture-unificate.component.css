@@ -1,0 +1,49 @@
+:host>>>.bozza-buttons button {
+    float: right;
+    width: 130px;
+    margin-left: 5px;
+    height: 35px;
+    line-height: 35px;
+    /* background-color: cornflowerblue; */
+}
+
+.ui-button.bozza-button {
+    font-weight: bold;
+    color: rgb(78, 78, 78);
+    border-color: grey;
+    background: rgb(246,248,249); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(246,248,249,1) 0%, rgba(229,235,238,1) 50%, rgba(215,222,227,1) 51%, rgba(245,247,249,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(246,248,249,1) 0%,rgba(229,235,238,1) 50%,rgba(215,222,227,1) 51%,rgba(245,247,249,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(246,248,249,1) 0%,rgba(229,235,238,1) 50%,rgba(215,222,227,1) 51%,rgba(245,247,249,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#f5f7f9',GradientType=0 ); /* IE6-9 */
+}
+
+.ui-button.bozza-button:hover {
+    font-weight: bold;
+    color: rgb(42, 42, 42);
+    border-color: grey;
+    background: rgb(222,223,224); /* Old browsers */
+    background: -moz-linear-gradient(top, rgba(222,223,224,1) 0%, rgba(229,235,238,1) 51%, rgba(215,222,227,1) 53%, rgba(219,220,221,1) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, rgba(222,223,224,1) 0%,rgba(229,235,238,1) 51%,rgba(215,222,227,1) 53%,rgba(219,220,221,1) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, rgba(222,223,224,1) 0%,rgba(229,235,238,1) 51%,rgba(215,222,227,1) 53%,rgba(219,220,221,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dedfe0', endColorstr='#dbdcdd',GradientType=0 ); /* IE6-9 */
+}
+
+.deactivate-button {
+    color: #fcced4;
+    background-color: #8b141a;
+    border-color: #e67281;
+}
+
+.editing-grid {
+    align-items: baseline;
+}
+
+>>>.calendario-editing span input {
+    width: calc(100% - 33px) !important;
+}
+
+.bozza-attiva {
+    font-style: italic !important;
+    font-weight: bold;
+}

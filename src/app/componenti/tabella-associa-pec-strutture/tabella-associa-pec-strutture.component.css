@@ -1,0 +1,28 @@
+:host .struttura-selezionata {
+    margin: 0;
+}
+.up-buttons{
+    text-align: right;
+}
+:host>>>.up-buttons button {
+    /* float: right; */
+    width: auto;
+    margin-left: 5px;
+    height: 35px;
+    line-height: 35px;
+}
+
+:host>>> .button-gestori {
+    height: 2.357em !important;
+    right: 1px;
+    position: absolute;
+    top: 25%;
+}
+
+:host>>> .cell-with-button {
+    position: relative;
+}
+
+>>> .pec-dialog .ui-dialog-content.ui-widget-content {
+    height: 100%;
+  }

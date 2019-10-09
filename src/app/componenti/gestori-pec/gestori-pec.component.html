@@ -1,0 +1,232 @@
+<p-toast key="toast1" [style]="{marginTop: '80px'}"></p-toast>
+<div class="p-grid">
+    <h3 class="p-col-12 title"><span class="title-label">Gestori della Pec:</span><span
+            class="title-pec">{{_pec?.descrizione}} - {{_pec?.indirizzo}}</span></h3>
+    <div class="p-col-12 up-buttons">
+        <button pButton icon="pi pi-plus" (click)="editPermission(null)" label="Aggiungi"
+            pTooltip="Aggiungi un nuovo gestore" class="bds-button">
+        </button>
+    </div>
+    <p-table #dtGestoriPec [columns]="_cols" [lazy]="false" class="p-col-12" sortMode="off">
+
+        <!-- Questo serve FORSE per far si che header e body rimangano allineati -->
+        <ng-template pTemplate="colgroup" let-columns>
+            <colgroup>
+                <col *ngFor="let col of columns" [style.width]="col.style?.width">
+                <col [style.width]="'56px'">
+                <col [style.width]="'56px'">
+            </colgroup>
+        </ng-template>
+
+        <!--TEMPLATE PER HEADERS-->
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th *ngFor="let col of columns" [style.width]="col.style?.width">
+                    {{col.header}}
+                    <!-- <p-sortIcon [field]="col.field"
+                        ariaLabel="Activate to sort"
+                        ariaLabelDesc="Activate to sort in descending order"
+                        ariaLabelAsc="Activate to sort in ascending order">
+                    </p-sortIcon> -->
+                </th>
+                <th style.width="48px"></th>
+                <th style.width="48px"></th>
+            </tr>
+            <!-- <tr>
+                <th *ngFor="let col of columns" [ngSwitch]="col.fieldType">
+                    <nextsdr-primeng-table-search-body [column]="col" [tableComponent]="dtGestoriPec"></nextsdr-primeng-table-search-body>
+                </th>
+                <th [style.width]="'50px'"></th>
+                <th [style.width]="'50px'"></th>
+            </tr> -->
+        </ng-template>
+
+        <!--TEMPLATE PER BODY-->
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr [pSelectableRow]="rowData">
+                <td *ngFor="let col of columns" [style.width]="col.style?.width">
+                    <!--               <div *ngIf="col.field !== 'permessi'">
+                        <nextsdr-primeng-table-column-body [column]="col" [rowData]="rowData">
+                        </nextsdr-primeng-table-column-body>
+                    </div>
+                    <div *ngIf="col.field === 'permessi'">
+                        {{buildPermessi(rowData)}}
+                    </div> -->
+                    <div [ngSwitch]="col.field">
+                        <div *ngSwitchCase="'permessi'">
+                            {{buildPermessi(rowData)}}
+                        </div>
+                        <div *ngSwitchCase="'attivo_dal'">
+                            {{buildDateFieldsTable(rowData,'attivo_dal') | date:'dd/MM/yyyy'}}
+                        </div>
+                        <div *ngSwitchCase="'attivo_al'">
+                            {{buildDateFieldsTable(rowData,'attivo_al') | date:'dd/MM/yyyy'}}
+                        </div>
+                        <nextsdr-primeng-table-column-body *ngSwitchDefault [column]="col" [rowData]="rowData">
+                        </nextsdr-primeng-table-column-body>
+                    </div>
+                </td>
+                <td style.width="48px">
+                    <button [disabled]="rowData['permessi_multipli'] == true" pButton type="button" icon="pi pi-pencil"
+                        (click)="this.editPermission(rowData)" pTooltip="Modifica" class="bds-button">
+                    </button>
+                </td>
+                <td style.width="48px">
+                    <button pButton type="button" icon="pi pi-trash" (click)="eliminaPermesso(rowData)"
+                        pTooltip="Elimina" class="bds-button">
+                    </button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage" let-columns>
+            <tr>
+                <td [attr.colspan]="columns?.length + 2" style="text-align: center">
+                    Attualmente questa Pec non ha gestori
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <p-dialog appendTo="body" [responsive]="true" showEffect="fade" [modal]="true" [width]="850"
+        [(visible)]="dialogVisible" [closable]="false">
+        <p-messages key="message1"></p-messages>
+
+
+        <div *ngIf="dialogMode == 'notUsed'" class="p-grid ui-fluid">
+            <div class="p-col-6">
+                <label for="persona">Utente</label>
+                <nextsdr-primeng-autocomplete #combo id="persona" field="campoCustom" minlength="1"
+                    placeholder="Seleziona un utente" [(value)]="valueEditDialog.idUtente"
+                    [serviceQueringWrapper]="servicePersoneFiltrate" [dropdown]="true" appendTo="body"
+                    [createQueryParams]="createQueryParamsComboUtenti"
+                    [transformValuesAfterQuery]="trasformValuesAfterSearch"
+                    [pTooltip]="valueEditDialog.idUtente.campoCustom" [disabled]="true">
+                </nextsdr-primeng-autocomplete>
+                <!--
+                    <ng-template #provatemplate let-value="value">
+                        <p>
+                            {{value.idPersona.descrizione}} - {{value.idPersona.codiceFiscale}} - {{value.attivo}}
+                        </p>
+                    </ng-template>
+                -->
+
+            </div>
+            <div class="p-col-6">
+                <label for="permesso">Permesso</label>
+                <p-autoComplete formControlName="permesso" [(ngModel)]="valueEditDialog.permesso"
+                    [suggestions]="listaPermessi" placeholder="Seleziona un permesso" [minLength]="1" [size]="3"
+                    (completeMethod)="filterPermessi($event)" [dropdown]="true" appendTo="body">
+                    <ng-template let-permesso pTemplate="item">
+                        <div class="ui-helper-clearfix">
+                            <div>{{permesso}}</div>
+                        </div>
+                    </ng-template>
+                </p-autoComplete>
+            </div>
+        </div>
+        <div *ngIf="valueEditDialog" class="p-grid ui-fluid  add-fields-dialog-container">
+            <div class="p-col-5">
+                <label for="persona">Utente*</label>
+                <nextsdr-primeng-autocomplete #combo id="persona" field="campoCustom" minlength="1"
+                    placeholder="Seleziona un utente" [(value)]="valueEditDialog.idUtente"
+                    [serviceQueringWrapper]="servicePersoneFiltrate" [dropdown]="true" appendTo="body"
+                    [createQueryParams]="createQueryParamsComboUtenti"
+                    [transformValuesAfterQuery]="trasformValuesAfterSearch"
+                    [pTooltip]="valueEditDialog.idUtente.campoCustom" [disabled]="dialogMode == 'edit'">
+                </nextsdr-primeng-autocomplete>
+            </div>
+            <div class="p-col-2">
+                <label for="permesso">Permesso*</label>
+                <p-autoComplete [(ngModel)]="valueEditDialog.permesso" [suggestions]="listaPermessi" [minLength]="1"
+                    [size]="3" (completeMethod)="filterPermessi($event)" [dropdown]="true" appendTo="body">
+                    <ng-template let-permesso pTemplate="item">
+                        <div class="ui-helper-clearfix">
+                            <div>{{permesso}}</div>
+                        </div>
+                    </ng-template>
+                </p-autoComplete>
+            </div>
+            <div class="p-col-2">
+                <label for="data_inizio">Data inizio*</label>
+                <p-calendar #calInizio [(ngModel)]="valueEditDialog.dataInizio" [showIcon]="true" appendTo="body"
+                    [locale]="localIt" [minDate]="today" [maxDate]="maxDataInizio" dateFormat="dd/mm/yy"
+                    [readonlyInput]="false" (onSelect)="onSelectDataInizio($event)">
+                </p-calendar>
+            </div>
+            <div class="p-col-2">
+                <label for="data_fine">Data fine</label>
+                <p-calendar #calFine [(ngModel)]="valueEditDialog.dataFine" [showIcon]="true" appendTo="body"
+                    [locale]="localIt" [minDate]="minDataFine" dateFormat="dd/mm/yy" [readonlyInput]="false"
+                    (onSelect)="onSelectDataFine($event)">
+                    <p-footer class="p-grid p-justify-center">
+                        <button type="button" pButton
+                            (click)="valueEditDialog.dataFine=null; calFine.overlayVisible=false" label="Svuota">
+                        </button>
+                    </p-footer>
+                </p-calendar>
+            </div>
+            <div *ngIf="dialogMode == 'add'" class="p-col-1  p-col-align-end">
+                <button pButton type=" button" icon="pi pi-plus" (click)="addGestore(valueEditDialog)"
+                    pTooltip="Aggiungi" class="bds-button">
+                </button>
+            </div>
+        </div>
+        <p-table #tableInserisciGestori *ngIf="dialogMode == 'add' && valueTableDialog.length > 0"
+            [value]="valueTableDialog" [scrollable]="true" scrollHeight="20vh" [style]="{'margin-bottom':'25px'}">
+            <ng-template pTemplate="colgroup">
+                <colgroup>
+                    <col [style.width]="'300px'">
+                    <col>
+                    <col>
+                    <col>
+                    <col [style.width]="'48px'">
+                </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th [style.width]="'300px'">Utente</th>
+                    <th>Permesso</th>
+                    <th>Data inizio</th>
+                    <th>Data fine</th>
+                    <th [style.width]="'50px'"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData>
+                <tr style.line-height="48px !important">
+                    <td [style.width]="'300px'">
+                        {{rowData.idUtente.campoCustom}}
+                    </td>
+                    <td>
+                        {{rowData.permesso}}
+                    </td>
+                    <td>
+                        {{rowData.dataInizio | date:'dd/MM/yyyy'}}
+                    </td>
+                    <td>
+                        {{rowData.dataFine | date:'dd/MM/yyyy'}}
+                    </td>
+                    <td [style.width]="'50px'" style="padding: .25em .5em">
+                        <button pButton type="button" icon="pi pi-trash" (click)="eliminaGestore(rowData)"
+                            pTooltip="Elimina" class="bds-button">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+        <p-footer>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                <button type="button" pButton icon="pi pi-check" (click)="savePermission()" label="Salva"
+                    [disabled]="!enabledSaveDialog(dialogMode)"></button>
+                <button type="button" pButton icon="pi pi-times" (click)="closeDialog()" label="Chiudi"></button>
+            </div>
+        </p-footer>
+    </p-dialog>
+</div>
+
+<p-confirmDialog #cd appendTo="body" header="Conferma" icon="pi pi-exclamation-triangle" width="425" key="gestori">
+    <p-footer>
+        <button type="button" pButton icon="" label="Si" (click)="cd.accept()"></button>
+        <button type="button" pButton icon="" label="No" (click)="cd.reject()"></button>
+    </p-footer>
+</p-confirmDialog>

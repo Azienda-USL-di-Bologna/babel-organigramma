@@ -1,0 +1,39 @@
+<div #ricerca >
+  <div class="p-grid">
+    <div class="p-xl-9 p-lg-12">
+      <p-selectButton *ngIf = "_searchType == 'entrambi'"
+        [options]="searchButtons" 
+        [(ngModel)]="selectedSearchType" 
+        [styleClass]="'select-button'">
+      </p-selectButton>
+    </div>
+  </div>
+  
+  <app-combo-strutture 
+    *ngIf="selectedSearchType == 'strutture'" 
+    [azienda]="_azienda" 
+    (strutturaSelezionataEmit)="strutturaSelezionataDaComboRecived($event)">
+  </app-combo-strutture>
+  
+  <app-combo-utenti 
+    *ngIf="selectedSearchType == 'utenti'" 
+    [azienda]="_azienda" 
+    (utenteStrutturaSelezionatoEmit)="utenteStrutturaSelezionatoRecived($event)">
+  </app-combo-utenti>
+</div>
+
+<p-tree #mytree
+  [value]="nodes"
+  [selectionMode]="_selectionType"
+  [propagateSelectionUp]="false"
+  [propagateSelectionDown]="_propagateSelectionDown"
+  [(selection)]="selectedNode"
+  (onNodeExpand)="handleEvent('onNodeExpand', $event)"
+  (onNodeSelect)="handleEvent('onNodeSelect', $event)"
+  (onNodeUnselect)="handleEvent('onNodeUnselect', $event)"
+  [styleClass]="'tree-strutture'">
+  
+  <ng-template let-node pTemplate="default">
+      <span pTooltip="{{node.tooltip}}">{{node.label}}</span>
+  </ng-template>
+</p-tree>

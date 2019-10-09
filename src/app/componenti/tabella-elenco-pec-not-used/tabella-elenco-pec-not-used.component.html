@@ -1,0 +1,205 @@
+    <div class="p-grid">
+        <p-toast [key]="'toast_tab_elenco_pec'"></p-toast>
+    
+        <h3 class="p-col-12 title">Anagrafe delle Pec aziendali Con Table Support</h3>
+    
+        <div class="p-col-12 up-buttons">
+            <button pButton icon="pi pi-plus"
+
+                label="Aggiungi"
+                pTooltip="Aggiungi una nuova Pec"
+                class="bds-button">
+                <!-- (click)="startEditRow(null, 'INSERT')" -->
+            </button>
+        </div>
+    
+    
+        <p-table 
+            #dtPec
+            [columns]="_cols" 
+            [rows]="8"
+            [paginator]="true" 
+            [autoLayout]="true" 
+            [rowsPerPageOptions]="[5,8,10,15,20]"
+            [lazy]="true"
+            class="p-col-12 clTable">
+            >
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <ng-template ngFor let-col [ngForOf]="columns">
+                        <th *ngIf="col.fieldType !== 'object'" [pSortableColumn]="col.field"  [style.width]="col.style?.width">                
+                            {{col.header}}
+                            <p-sortIcon  [field]="col.field">
+                            </p-sortIcon>
+                            <!--                         ariaLabel="Activate to sort" 
+                                ariaLabelDesc="Activate to sort in descending order"
+                                    ariaLabelAsc="Activate to sort in ascending order" -->
+                        </th>
+                        <th *ngIf="col.fieldType == 'object'" [style.width]="col.style?.width">                
+                            {{col.header}}
+                        </th>
+                    </ng-template>
+                    <th [style.width]="'50px'"></th>
+                </tr>
+                <tr>
+                    <td *ngFor="let col of columns" [ngSwitch]="col.field" [ngSwitch]="col.field" [style.width]="col.style?.width" [style.text-align]="'center'">
+                        <div *ngSwitchCase="'aziende'">
+                            <app-combo-aziende [azienda]="_aziendaIniziale" [filterByRole]="true" [readonly]="_comboAziendeReadOnly" (aziendaChange)="filterComboChange('aziende', $event)"></app-combo-aziende>
+                        </div>
+                        <div *ngSwitchCase="'strutture'">
+                            <app-combo-strutture-new [enabled]="_aziendaFilter" [strutturaIniziale]="_strutturaFilter" [azienda]="_aziendaFilter" (strutturaSelezionataEmit)="filterComboChange('strutture', $event)"></app-combo-strutture-new>
+                        </div>
+                        <div *ngSwitchCase="'gestori'">
+                            <app-combo-utenti [enabled]="_aziendaFilter" [utenteIniziale]="_utenteFilter" [azienda]="_aziendaFilter" (utenteStrutturaSelezionatoEmit)="filterComboChange('gestori', $event)"></app-combo-utenti>
+                        </div>
+                        <div *ngSwitchDefault  [ngSwitch]="col.fieldType">
+                            <p-triStateCheckbox #check *ngSwitchCase="'boolean'" class="table-search-triStateCheckbox"
+                                (onChange)="dtPec.filter($event.value, col.field, col.filterMatchMode)">
+                            </p-triStateCheckbox>
+                            <input *ngSwitchDefault pInputText attr.aria-label="Colonnna {{col.header}}, Cella filtro" type="text" (input)="dtPec.filter($event.target.value, col.field, col.filterMatchMode)"
+                                style="width:100%" #filterInputText>                
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr>
+                    <td *ngFor="let col of columns" [ngSwitch]="col.field" [style.width]="col.style?.width">
+                        <div *ngSwitchCase="'aziende'">
+                            {{buildAziende(rowData)}}
+                        </div>
+                        <div *ngSwitchCase="'strutture'">
+                            {{buildStrutture(rowData)}}
+                        </div>
+                        <div *ngSwitchCase="'gestori'">
+                            {{buildGestori(rowData)}}
+                        </div>
+                        <div *ngSwitchDefault>                    
+                            {{rowData[col.field]}}
+                        </div>
+                    </td>
+                    <td [style.width]="'50px'">
+                        <button pButton type="button" icon="pi pi-pencil" (click)="this._pecTableSupport.startEdit('UPDATE', rowData)"
+                          pTooltip="Modifica" class="bds-button" [disabled]="!possoModificareRow(rowData)">
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    
+    
+        <p-dialog #dialog appendTo="body" [responsive]="true" showEffect="fade" 
+                [modal]="true" [width]="800" [(visible)]="dialog.visible" (onHide)="onHideDialog()">
+                <!--DIALOG DI MODIFICA/INSERIMENTO-->
+                <nextsdr-edit-primeng #editComponent 
+                    [template]="atemplate" 
+                    (onStartEdit)="onStartEdit($event)" 
+                    (onFinishEdit)="dialog.visible=false"
+                    (onSave)="onSave($event)"
+                    [hideFooter]="true">
+                </nextsdr-edit-primeng>
+                <ng-template #atemplate let-entity="entity" let-mode="mode">
+                    <div *ngIf="entity" class="ui-g ui-fluid">
+                        <!-- RIGA UNO -->
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2">
+                            <p-checkbox 
+                                [(ngModel)]="entity.attiva" 
+                                id="attiva" 
+                                binary="true">
+                            </p-checkbox>
+                            <label for="attiva" style="margin-left: 20px">Attiva</label>
+                        </div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-3">
+                            <p-checkbox 
+                                [(ngModel)]="entity.perRiservato" 
+                                id="perRiservato" 
+                                binary="true">
+                            </p-checkbox>
+                            <label for="perRiservato" style="margin-left: 20px">Per riservato</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+        
+                        <!-- RIGA 2 -->
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2">
+                            <p-checkbox 
+                                [(ngModel)]="entity.massiva" 
+                                id="attiva" 
+                                binary="true" 
+                                pTooltip="">
+                            </p-checkbox>
+                            <label for="massiva" style="margin-left: 20px">Massiva</label>
+                        </div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-3">
+                            <p-checkbox 
+                                [(ngModel)]="entity.chiusa" 
+                                id="chiusa" 
+                                binary="true">
+                            </p-checkbox>
+                            <label for="chiusa" style="margin-left: 20px">Chiusa</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+        
+                        <!-- ALTRE RIGHE -->
+                        <div class="ui-g-6">
+                            <label for="indirizzo">Indirizzo</label>
+                            <input #desc pInputText id="indirizzo" [(ngModel)]="entity.indirizzo" />
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="descrizione">Descrizione</label>
+                            <input #desc pInputText id="descrizione" [(ngModel)]="entity.descrizione" />
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="username">Username</label>
+                            <input #desc pInputText id="username" [(ngModel)]="entity.username" />
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="password">Password</label>
+                            <input #desc type="password" pPassword id="password" [(ngModel)]="entity.password" 
+                                class="ui-inputtext ui-corner-all"/>
+                        </div>
+                        <div class="ui-g-6 bds">
+                            <label for="messagePolicy">Policy</label>
+                            <p-dropdown 
+                                #desc
+                                id="messagePolicy"
+                                [options]="messagesPolicy" 
+                                [(ngModel)]="entity.messagePolicy" 
+                                placeholder="Seleziona la Policy"
+                                appendTo="body">
+                            </p-dropdown>
+        
+                            <!-- <input #desc type="number" min="0" max="100" pInputText id="messagePolicy" [(ngModel)]="entity.messagePolicy" /> -->
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="idPecProvider.descrizione">Provider</label>
+                            <nextsdr-primeng-autocomplete 
+                                id="idPecProvider" 
+                                field="descrizione" 
+                                [(value)]="entity.idPecProvider"
+                                [serviceQueringWrapper]="{service: pecProviderService}" 
+                                [dropdown]="true" 
+                                appendTo="body">
+                            </nextsdr-primeng-autocomplete>
+                            <!-- <input #desc pInputText id="idPecProvider.descrizione" [(ngModel)]="entity.idPecProvider.descrizione"/> -->
+                        </div>
+                        <div class="ui-g-12">
+                            <label for="messagePolicy">Aziende associate</label>
+                            <app-combo-aziende [(azienda)]="entity.aziendeSelezionate" [multiple] = "true" [filterByRole]="true"></app-combo-aziende>
+                        </div>
+                    </div>
+                </ng-template>
+                <p-footer>
+                    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                        <button type="button" pButton icon="pi pi-check" (click)="editComponent.save()" label="Salva"></button>
+                        <button type="button" pButton icon="pi pi-times" (click)="editComponent.cancel()" label="Chiudi"></button>
+                    </div>
+                </p-footer>
+            </p-dialog>
+    </div>
+    

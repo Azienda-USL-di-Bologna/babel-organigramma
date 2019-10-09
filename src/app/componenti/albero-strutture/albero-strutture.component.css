@@ -1,0 +1,9 @@
+:host>>>.node-unificata{
+    color: blue;
+    font-style: italic;
+}
+
+:host>>>.node-non-unificata{
+    color: black;
+    font-style: normal;
+}
