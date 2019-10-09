@@ -1,0 +1,30 @@
+<div class="ui-fluid p-grid">
+
+  <div class="p-col-12">
+    <div class="p-grid justify-between">
+      <div class="p-col-4 p-col-align-start">
+        <div class="mb-8">
+          <app-combo-aziende
+            (aziendaChange)="aziendaSelezionataRecived($event)" [(azienda)]="_aziendaSelezionata" [filterByRole]="true">
+          </app-combo-aziende>
+        </div>
+        
+        <app-albero-organigramma
+          *ngIf="_aziendaSelezionata" 
+          [azienda]="_aziendaSelezionata"
+          (strutturaSelezionataEmit)="strutturaSelezionataRecived($event)">
+        </app-albero-organigramma>
+        <h3 *ngIf="!_aziendaSelezionata" style="text-align: center">Seleziona l'azienda</h3>
+      </div>
+
+      <div class="p-col-7">        
+        <!-- <h4 *ngIf="_aziendaSelezionata && _strutturaSelezionata">
+          {{_strutturaSelezionata.nome}}</h4> -->
+        <app-tabella-associa-pec-strutture-wrapper
+          [aziendaAndStruttura]="_aziendaAndStruttura">
+        </app-tabella-associa-pec-strutture-wrapper>
+        <h3 *ngIf="_aziendaSelezionata && !_strutturaSelezionata" style="text-align: center">Seleziona la struttura</h3>
+      </div>
+    </div>
+  </div>
+</div>

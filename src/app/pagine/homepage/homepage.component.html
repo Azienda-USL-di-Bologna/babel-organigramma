@@ -1,0 +1,23 @@
+
+<p>
+  <a routerLink="/organigramma">Organigramma</a>
+</p>
+<p *ngIf="(loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CI)">
+  <a routerLink="/strutture-unificate">Strutture unificate</a>
+</p>
+<p *ngIf="(loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CI) || (loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CA)" >
+  <a routerLink="/elenco-pec">Nuovo Anagrafe pec</a>
+</p>
+<p *ngIf="(loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CI)">
+  <a routerLink="/anagrafe-pec">Vecchio Anagrafe pec</a>
+</p>
+<p *ngIf="(loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CI) || (loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CA)" >
+  <a routerLink="/associa-pec-strutture">Associa pec-strutture</a>
+</p>
+
+<p *ngIf="(loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CI) || (loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CA)" >
+  <a routerLink="/ribaltorg">Ribaltorg</a>
+</p>
+<p *ngIf="(loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CI) || (loginService.loggedUser$|async).hasRole(CODICI_RUOLO.CA)" >
+  <a routerLink="/amministrazione-messaggi">Amministrazione Messaggi</a>
+</p>

@@ -1,0 +1,84 @@
+<div class="p-col container p-nogutter">
+  <button pButton 
+    type="button" 
+    label="Lancia ribaltone" 
+    (click)="startRibaltamento()"
+    class="button-lancio">
+  </button>
+  <div class="ribaltorg-container p-col">
+    <p-tabView (onChange)="onTabChange($event)">
+      <p-tabPanel header="Stato attivazione">
+        <app-stato-attivazione-ribaltoni [refreshStatoAttivazioni]="refreshStatoAttivazioni"></app-stato-attivazione-ribaltoni>
+      </p-tabPanel>
+      <p-tabPanel header="Storico">
+        <app-storico-lancio-ribaltoni [refreshStoricoLanci]="refreshStoricoLanci"></app-storico-lancio-ribaltoni>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</div>
+
+<p-dialog header="Lancia ribaltone" [(visible)]="popupLanciaRibaltorgVisible" appendTo="body" [style]="{width: '300px'}" modal="true">
+  <!-- TODO inserire la gestione FORM
+  Guardare la new mail di gei e angular form -->
+  <div class="ui-fluid p-grid p-nogutter">
+    <app-combo-aziende  class="p-col-12"
+      [(azienda)]="_aziendaSelezionata" (aziendaChange)="aziendaSelezionataRecived($event)" filterByRole="true" readonly="true">
+    </app-combo-aziende>
+    <div class="ui-g-12" style="margin-top: 8px">
+      <p-checkbox 
+        name="group2" 
+        label="Ribalta Internauta"
+        [(ngModel)]="ribaltamento.ribaltaInternauta" 
+        binary="true">
+      </p-checkbox>
+    </div>
+    <div class="ui-g-12">
+      <p-checkbox 
+        name="group2" 
+        label="Ribalta locale" 
+        [(ngModel)]="ribaltamento.ribaltaArgo" 
+        binary="true">
+      </p-checkbox>
+    </div>
+    <!-- <div class="ui-g-12">
+      <p-checkbox 
+        name="group2" 
+        label="Ribalta rubriche" 
+        [(ngModel)]="ribaltamento.ribaltaRubriche" 
+        binary="true">
+      </p-checkbox>
+    </div> -->
+    <div class="ui-g-12 mail-box">
+      <span class="ui-float-label mail-box-input">
+        <input id="float-input" type="text" pInputText [(ngModel)]="ribaltamento.email" style="width: 100%"> 
+        <label for="float-input">Inserisci il tuo indirizzo e-mail</label>
+      </span>
+      <!-- Funzione riattivabile in futuro. Non cancellare -->
+      <!-- <span class="mail-box-pennetta" (click)="addUserEmail()" pTooltip="Aggiungi la e-mail personale"><i class="pi pi-pencil"></i></span> -->
+    </div>
+    <div style="margin-top: 8px" class="ui-g-12">
+      <label>Inserisci le tue note</label>
+      <textarea pInputTextArea
+        class="text-area-editing"
+        [(ngModel)]="ribaltamento.note">
+      </textarea>
+    </div>
+  </div>
+  <p-footer>
+    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+      <button pButton 
+        icon="pi pi-check" 
+        label="Lancia" 
+        (click)="lanciaRibaltone()" 
+        style="width: 100px">
+      </button>
+      <button pButton 
+        icon="pi pi-times" 
+        label="Annulla" 
+        (click)="popupLanciaRibaltorgVisible = false" 
+        style="width: 100px">
+      </button>
+    </div>
+  </p-footer>
+</p-dialog>
+<p-toast></p-toast>

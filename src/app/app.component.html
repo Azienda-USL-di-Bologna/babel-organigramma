@@ -1,0 +1,18 @@
+<div class="d-flex flex-direction-column page-wrapper p-nogutter">
+  <!-- <div> -->
+    <!-- <app-header [addToRight]="headerTemplate"> </app-header>
+    <ng-template #headerTemplate>
+        <app-header-features [params]="headerFeaturesParams"></app-header-features>
+    </ng-template> -->
+    <prp-header [addToRight]="headerTemplate" [appName]="'Baborg'" [logoPath]="'assets/images/logo.png'"></prp-header>
+    <ng-template #headerTemplate>
+      <prp-header-features [params]="headerFeaturesConfig"></prp-header-features>
+    </ng-template>
+  <!-- </div> -->
+
+  <div class="d-flex flex-flow-column padding-general content-wrapper ui-fluid">
+    <!-- ui-fluid forse appartiene al vecchio sistema grid e verrà deprecato -->
+    <router-outlet></router-outlet>
+  </div>
+</div>
+

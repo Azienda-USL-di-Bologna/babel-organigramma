@@ -1,0 +1,222 @@
+<div>
+        <p-toast></p-toast>
+
+        <div class="p-col">
+            <h3 class="p-col-12 title">Anagrafe delle Pec aziendali</h3>
+        
+            <div class="p-col-12 up-buttons">
+                <button pButton icon="pi pi-plus"
+                    (click)="_pecTableSupport.startEdit('INSERT', {attiva: false, massiva: false, chiusa: false, perRiservato: false})"
+                    label="Aggiungi"
+                    pTooltip="Aggiungi una nuova Pec"
+                    class="bds-button">
+                </button>
+            </div>
+            <p-table #dtPec 
+                [columns]="_cols" 
+                [rows]="8" 
+                [paginator]="true" 
+                [autoLayout]="true" 
+                [rowsPerPageOptions]="[5,8,10,15,20]"
+                [lazy]="true" 
+                class="p-col-12 clTable">
+        
+                <!--TEMPLATE PER HEADERS-->
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field" [style.width]="col.style?.width">
+                            {{col.header}}
+                            <p-sortIcon [field]="col.field">
+                            </p-sortIcon>
+<!--                             ariaLabel="Activate to sort" 
+                            ariaLabelDesc="Activate to sort in descending order"
+                                ariaLabelAsc="Activate to sort in ascending order" -->
+                        </th>
+        
+                        <th  [style.width]="'50px'"></th>
+                        <!-- <th [style.width]="'50px'"></th> -->
+                        <!-- <th [style.width]="'50px'"></th> -->
+                    </tr>
+                    <tr>
+                        <th *ngFor="let col of columns" [ngSwitch]="col.fieldType" [style.width]="col.style?.width">
+                            <nextsdr-primeng-table-search-body #search [column]="col" [tableComponent]="dtPec"></nextsdr-primeng-table-search-body>
+                        </th>
+                        <!-- modifica -->
+                        <th [style.width]="'50px'"></th>
+                        <!-- gestori pec -->
+                        <!-- <th [style.width]="'50px'"></th> -->
+                    </tr>
+                </ng-template>
+        
+                <!--TEMPLATE PER BODY-->
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                    <tr class="row-class" [pSelectableRow]="rowData">
+                        <td *ngFor="let col of columns" [style.width]="col.style?.width">
+                            <nextsdr-primeng-table-column-body [column]="col" [rowData]="rowData"></nextsdr-primeng-table-column-body>
+                        </td>
+                        <td [style.width]="'50px'">
+                            <button pButton type="button" icon="pi pi-pencil" (click)="this._pecTableSupport.startEdit('UPDATE', rowData)"
+                                pTooltip="Modifica" class="bds-button" [disabled]="!possoModificare(rowData)">
+                            </button>
+                        </td>
+                        <!-- <td [style.width]="'50px'">
+                            <button pButton type="button" icon="pi pi-share-alt" (click)="attivaComponenteTarget('pec-strutture', rowData)"
+                                pTooltip="Associa pec-strutture" class="bds-button">
+                            </button>
+                        </td> -->
+                       <!--  <td [style.width]="'50px'">
+                            <button pButton type="button" icon="pi pi-users" (click)="apriGestoriPec(rowData)"
+                                pTooltip="Gestori pec" class="bds-button">
+                            </button>
+                        </td> -->
+                    </tr>
+                </ng-template>
+        
+                <!--TEMPLATE PER SOMMARIO-->
+                <!-- <ng-template pTemplate="summary" let-rowData>
+                    <div>
+                        <button
+                            pButton
+                            type="button"
+                            icon="fa fa-plus"
+                            (click)="_pecTableSupport.startEdit('INSERT', {})"
+                            label="Aggiungi">
+                        </button>
+                    </div>
+                </ng-template> -->
+            </p-table>
+        
+            <p-dialog #dialog appendTo="body" [responsive]="true" showEffect="fade" 
+                [modal]="true" [width]="800" [(visible)]="dialog.visible" (onHide)="onHideDialog()">
+                <!--DIALOG DI MODIFICA/INSERIMENTO-->
+                <nextsdr-edit-primeng #editComponent 
+                    [template]="atemplate" 
+                    (onStartEdit)="onStartEdit($event)" 
+                    (onFinishEdit)="dialog.visible=false"
+                    (onSave)="onSave($event)"
+                    [hideFooter]="true">
+                </nextsdr-edit-primeng>
+                <ng-template #atemplate let-entity="entity" let-mode="mode">
+                    <div *ngIf="entity" class="ui-g ui-fluid">
+                        <!-- RIGA UNO -->
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2">
+                            <p-checkbox 
+                                [(ngModel)]="entity.attiva" 
+                                id="attiva" 
+                                binary="true">
+                            </p-checkbox>
+                            <label for="attiva" style="margin-left: 20px">Attiva</label>
+                        </div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-3">
+                            <p-checkbox 
+                                [(ngModel)]="entity.perRiservato" 
+                                id="perRiservato" 
+                                binary="true">
+                            </p-checkbox>
+                            <label for="perRiservato" style="margin-left: 20px">Per riservato</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+        
+                        <!-- RIGA 2 -->
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2">
+                            <p-checkbox 
+                                [(ngModel)]="entity.massiva" 
+                                id="attiva" 
+                                binary="true" 
+                                pTooltip="">
+                            </p-checkbox>
+                            <label for="massiva" style="margin-left: 20px">Massiva</label>
+                        </div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-2"></div>
+                        <div class="ui-g-3">
+                            <p-checkbox 
+                                [(ngModel)]="entity.chiusa" 
+                                id="chiusa" 
+                                binary="true">
+                            </p-checkbox>
+                            <label for="chiusa" style="margin-left: 20px">Chiusa</label>
+                        </div>
+                        <div class="ui-g-1"></div>
+        
+                        <!-- ALTRE RIGHE -->
+                        <div class="ui-g-6">
+                            <label for="indirizzo">Indirizzo</label>
+                            <input #desc pInputText id="indirizzo" [(ngModel)]="entity.indirizzo" />
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="descrizione">Descrizione</label>
+                            <input #desc pInputText id="descrizione" [(ngModel)]="entity.descrizione" />
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="username">Username</label>
+                            <input #desc pInputText id="username" [(ngModel)]="entity.username" />
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="password">Password</label>
+                            <input #desc type="password" pPassword id="password" [(ngModel)]="entity.password" 
+                                class="ui-inputtext ui-corner-all"/>
+                        </div>
+                        <div class="ui-g-6 bds">
+                            <label for="messagePolicy">Policy</label>
+                            <p-dropdown 
+                                #desc
+                                id="messagePolicy"
+                                [options]="messagesPolicy" 
+                                [(ngModel)]="entity.messagePolicy" 
+                                placeholder="Seleziona la Policy"
+                                appendTo="body">
+                            </p-dropdown>
+        
+                            <!-- <input #desc type="number" min="0" max="100" pInputText id="messagePolicy" [(ngModel)]="entity.messagePolicy" /> -->
+                        </div>
+                        <div class="ui-g-6">
+                            <label for="idPecProvider.descrizione">Provider</label>
+                            <nextsdr-primeng-autocomplete 
+                                id="idPecProvider" 
+                                field="descrizione" 
+                                [(value)]="entity.idPecProvider"
+                                [serviceQueringWrapper]="{service: pecProviderService}" 
+                                [dropdown]="true" 
+                                appendTo="body">
+                            </nextsdr-primeng-autocomplete>
+                            <!-- <input #desc pInputText id="idPecProvider.descrizione" [(ngModel)]="entity.idPecProvider.descrizione"/> -->
+                        </div>
+                        <div class="ui-g-12">
+                            <label for="messagePolicy">Aziende associate</label>
+                            <nextsdr-primeng-autocomplete id="id" field="descrizione" [(value)]="aziendeSelezionate" [placeholder]="'Scegli l\'azienda'"
+                                [serviceQueringWrapper]="serviceQWcomboAziende" [dropdown]="true" appendTo="body" [multiple]="true">
+                            </nextsdr-primeng-autocomplete>
+                        </div>
+                    </div>
+                </ng-template>
+                <p-footer>
+                    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                        <button type="button" pButton icon="pi pi-check" (click)="editComponent.save()" label="Salva"></button>
+                        <button type="button" pButton icon="pi pi-times" (click)="editComponent.cancel()" label="Chiudi"></button>
+                    </div>
+                </p-footer>
+            </p-dialog>
+        
+            <p-dialog 
+                appendTo="body" 
+                [responsive]="true" 
+                showEffect="fade" 
+                [modal]="true" 
+                [width]="900" 
+                [height]="600" 
+                [(visible)]="gestoriPecVisible"
+                styleClass="gestori-pec-dialog">
+                <app-gestori-pec *ngIf="pecSelezionata" [pec]="pecSelezionata"></app-gestori-pec>
+                <p-footer>
+                    <div class="ui-dialog-buttonpane ui-helper-clearfix editing-footer">
+                        <button type="button" pButton icon="pi pi-times" (click)="gestoriPecVisible = false" label="Chiudi"></button>
+                    </div>
+                </p-footer>
+            </p-dialog>
+        </div>
+</div>

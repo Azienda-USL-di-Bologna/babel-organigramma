@@ -1,0 +1,26 @@
+<p-confirmDialog header="Conferma" icon="pi pi-exclamation-triangle" width="425" #cd>
+    <p-footer>
+        <button type="button" pButton icon="" label="No" (click)="cd.reject()"></button>
+        <button type="button" pButton icon="" label="Si" (click)="cd.accept()"></button>
+    </p-footer>
+</p-confirmDialog>
+
+<p-tabView *ngIf="showTabView">
+  <p-tabPanel *ngIf="loggedUser.isCA() || loggedUser.isCI()" header="Correnti" leftIcon="pi pi-calendar" headerStyleClass="header" [cache]="cacheCorrenti" [selected]="true">
+    <ng-template pTemplate="content">
+      <app-strutture-unificate [stato]="STATI.Corrente" (reloadDataEmit)="reloadDataRecived($event)"></app-strutture-unificate>
+    </ng-template>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="loggedUser.isCI()" header="Bozza" leftIcon="pi pi-pencil" headerStyleClass="header" [cache]="cacheBozza">
+    <ng-template pTemplate="content">
+      <app-strutture-unificate [stato]="STATI.Bozza" (reloadDataEmit)="reloadDataRecived($event)"></app-strutture-unificate>
+    </ng-template>
+  </p-tabPanel>
+  <p-tabPanel *ngIf="loggedUser.isCA() || loggedUser.isCI()" header="Storico" leftIcon="pi pi-calendar-times" headerStyleClass="header" [cache]="cacheStorico">
+    <ng-template pTemplate="content">
+      <app-strutture-unificate [stato]="STATI.Storico"></app-strutture-unificate>
+    </ng-template>
+  </p-tabPanel>
+</p-tabView>
+
+<h2 *ngIf="!showTabView">Il tuo ruolo non può vedere nessuna tab</h2>

@@ -1,0 +1,11 @@
+<div class="div-wrapper">
+  <div class="inner-div">
+      <div class="label-style">Mail per la ricezione dell'esito del ribaltone</div>
+      <input type="text" pInputText [(ngModel)]="email"/>
+      <div class="label-style">Azienda su cui lanciare il ribaltone</div>
+      <!-- <input type="text" pInputText />-->
+      <app-combo-aziende (aziendaChange)="aziendaSelectedChanged($event)"></app-combo-aziende>
+      <p-button class="btn-lancia-style" label="Lancia" [disabled]="btnLanciaDisabled"  (onClick)="handleLanciaRibaltone($event)" ></p-button>
+  </div>
+  <p-confirmDialog header="Conferma" [rejectVisible]="false" width="425" acceptLabel="OK"></p-confirmDialog>
+</div>

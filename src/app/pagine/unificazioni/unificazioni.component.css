@@ -1,0 +1,8 @@
+:host>>>.header {
+    width: 150px;
+    text-align: center;
+}
+
+:host>>>.header a {
+    width: 100% !important;
+}

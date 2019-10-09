@@ -1,0 +1,11 @@
+:host>>>.tree-strutture{
+    max-height: 60vh; 
+    overflow: auto;
+}
+.mb-8{
+    margin-bottom: 8px;
+}
+.justify-between{
+    justify-content: space-between;
+}
+
